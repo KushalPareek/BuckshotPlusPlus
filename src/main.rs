@@ -1,13 +1,18 @@
-use log::{LevelFilter, debug};
 use clap::Parser;
+use log::LevelFilter;
+
+mod http;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    #[arg(short, long)]
+    #[arg(long)]
     path: String,
 
-    #[arg(short, long)]
+    #[arg(long)]
+    port: Option<i16>,
+
+    #[arg(long)]
     debug: Option<u8>,
 }
 
@@ -17,9 +22,5 @@ fn main() {
         .init();
 
     let args = Args::parse();
-    debug!("Path: {}", args.path);
-
-    if let Some(debug) = args.debug {
-        debug!("Debug: {:?}", debug);
-    }
+    http::main(args.port.unwrap_or(8080), args.debug.unwrap_or(0));
 }
