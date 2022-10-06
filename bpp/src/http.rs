@@ -4,16 +4,13 @@ use std::thread;
 
 use log::{debug, info};
 
-fn handle_read(mut stream: &TcpStream, debug: u8) {
+fn handle_read(mut stream: &TcpStream) {
     let mut buf = [0u8; 4096];
     match stream.read(&mut buf) {
-        Ok(_) => match debug {
-            1 => {
-                let req_str = String::from_utf8_lossy(&buf);
-                debug!("{}", req_str);
-            }
-            _ => {}
-        },
+        Ok(_) => {
+            let req_str = String::from_utf8_lossy(&buf);
+            debug!("{}", req_str);
+        }
         Err(e) => println!("Unable to read stream: {}", e),
     }
 }
@@ -26,12 +23,12 @@ fn handle_write(mut stream: TcpStream) {
     }
 }
 
-fn handle_client(stream: TcpStream, debug: u8) {
-    handle_read(&stream, debug);
+fn handle_client(stream: TcpStream) {
+    handle_read(&stream);
     handle_write(stream);
 }
 
-pub fn main(port: i16, debug: u8) {
+pub fn main(port: u16) {
     let listener = TcpListener::bind(format!("127.0.0.1:{}", port)).unwrap();
     info!("Listening for connections on port {}", port);
     info!("http://127.0.0.1:{}", port);
@@ -39,7 +36,7 @@ pub fn main(port: i16, debug: u8) {
     for stream in listener.incoming() {
         match stream {
             Ok(stream) => {
-                thread::spawn(move || handle_client(stream, debug));
+                thread::spawn(|| handle_client(stream));
             }
             Err(e) => {
                 println!("Unable to connect: {}", e);
