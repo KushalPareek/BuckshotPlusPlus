@@ -1,8 +1,8 @@
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
-use std::thread;
+use std::{thread, process};
 
-use log::{debug, info};
+use log::{debug, info, error};
 
 fn handle_read(mut stream: &TcpStream) {
     let mut buf = [0u8; 4096];
@@ -29,7 +29,14 @@ fn handle_client(stream: TcpStream) {
 }
 
 pub fn main(port: u16) {
-    let listener = TcpListener::bind(format!("127.0.0.1:{}", port)).unwrap();
+    let listener = match TcpListener::bind(format!("127.0.0.1:{}", port)) {
+        Ok(listener) => listener,
+        Err(error) => {
+            error!("{}", error);
+            process::exit(0)
+        }
+    };
+    
     info!("Listening for connections on port {}", port);
     info!("http://127.0.0.1:{}", port);
 
