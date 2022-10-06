@@ -1,8 +1,8 @@
 use std::io::{Read, Write};
 use std::net::{TcpListener, TcpStream};
-use std::{thread, process};
+use std::{process, thread};
 
-use log::{debug, info, error};
+use log::{debug, error, info};
 
 fn handle_read(mut stream: &TcpStream) {
     let mut buf = [0u8; 4096];
@@ -36,18 +36,20 @@ pub fn main(port: u16) {
             process::exit(0)
         }
     };
-    
+
     info!("Listening for connections on port {}", port);
     info!("http://127.0.0.1:{}", port);
 
-    for stream in listener.incoming() {
-        match stream {
-            Ok(stream) => {
-                thread::spawn(|| handle_client(stream));
-            }
-            Err(e) => {
-                println!("Unable to connect: {}", e);
+    thread::spawn(move || {
+        for stream in listener.incoming() {
+            match stream {
+                Ok(stream) => {
+                    handle_client(stream);
+                }
+                Err(e) => {
+                    println!("Unable to connect: {}", e);
+                }
             }
         }
-    }
+    });
 }

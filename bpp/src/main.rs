@@ -3,6 +3,8 @@ use env_logger::Builder;
 use log::LevelFilter;
 
 mod http;
+mod utils;
+mod watcher;
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -32,4 +34,5 @@ fn main() {
         .init();
 
     http::main(port);
+    watcher::main();
 }
